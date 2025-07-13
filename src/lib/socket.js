@@ -9,7 +9,7 @@ const io = new Server(server, {
   cors: {
     origin:
       process.env.NODE_ENV === "production"
-        ? ["https://your-frontend-domain.vercel.app"]
+        ? ["https://secure-chat-ecru.vercel.app"]
         : ["http://localhost:5173", "http://192.168.0.101:5173"],
   },
 });

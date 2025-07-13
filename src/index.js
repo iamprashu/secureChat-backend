@@ -5,6 +5,7 @@ import { verifyClerkToken } from "./middleware/clerkAuth.js";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { connectDB } from "./lib/db.js";
+import { server, io } from "./lib/socket.js";
 
 dotenv.config();
 
@@ -27,11 +28,9 @@ app.use("/messages", messageRoutes);
 
 const PORT = process.env.PORT || 3000;
 
-if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, async () => {
-    console.log(`Server is running on port ${PORT}`);
-    await connectDB();
-  });
-}
+server.listen(PORT, async () => {
+  console.log(`Server is running on port ${PORT}`);
+  await connectDB();
+});
 
 export default app;
