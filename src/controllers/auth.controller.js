@@ -34,6 +34,7 @@ export const syncClerkUser = async (req, res) => {
   try {
     const { clerkUser } = req;
     console.log("Clerk user data received:", clerkUser);
+    console.log("Request headers:", req.headers);
 
     if (!clerkUser.id) {
       return res.status(400).json({
@@ -79,6 +80,56 @@ export const syncClerkUser = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in syncClerkUser controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const syncClerkUserPublic = async (req, res) => {
+  try {
+    const { clerkUserId, email, fullName, profilePic } = req.body;
+    console.log("Public sync request received:", {
+      clerkUserId,
+      email,
+      fullName,
+    });
+
+    if (!clerkUserId) {
+      return res.status(400).json({
+        message: "User ID is required for sync",
+      });
+    }
+
+    let user = await User.findOne({
+      $or: [{ clerkUserId }, { email }],
+    });
+
+    if (user) {
+      user.clerkUserId = clerkUserId;
+      if (email) user.email = email;
+      if (fullName) user.fullName = fullName;
+      if (profilePic) user.profilePic = profilePic;
+      await user.save();
+      console.log("Updated existing user via public sync:", user._id);
+    } else {
+      user = new User({
+        clerkUserId,
+        email: email || `user_${clerkUserId}@placeholder.com`,
+        fullName: fullName || "User",
+        profilePic: profilePic || "",
+        password: "clerk-auth",
+      });
+      await user.save();
+      console.log("Created new user via public sync:", user._id);
+    }
+
+    res.status(200).json({
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      profilePic: user.profilePic,
+    });
+  } catch (error) {
+    console.log("Error in syncClerkUserPublic controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
