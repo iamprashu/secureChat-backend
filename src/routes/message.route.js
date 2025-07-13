@@ -8,6 +8,11 @@ import {
 
 const router = express.Router();
 
+// Handle OPTIONS requests for all routes
+router.options("*", (req, res) => {
+  res.status(200).end();
+});
+
 // All routes now use Clerk authentication
 router.get("/users", verifyClerkToken, getUsersForSidebar);
 router.get("/:id", verifyClerkToken, getMessages);

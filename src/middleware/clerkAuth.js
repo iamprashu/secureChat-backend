@@ -4,11 +4,13 @@ export const verifyClerkToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     console.log("Auth header:", authHeader ? "Present" : "Missing");
+    console.log("Request method:", req.method);
+    console.log("Request path:", req.path);
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ message: "No token provided" });
     }
-
+    
     const token = authHeader.substring(7);
     console.log("Token length:", token.length);
     console.log("Token:", token);

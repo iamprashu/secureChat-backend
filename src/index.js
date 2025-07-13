@@ -2,7 +2,6 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import http from "http";
-import { verifyClerkToken } from "./middleware/clerkAuth.js";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { connectDB } from "./lib/db.js";
@@ -23,6 +22,7 @@ const server = http.createServer(app);
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin}`);
+  console.log("Request headers:", req.headers);
   next();
 });
 
@@ -45,20 +45,37 @@ const corsOptions = {
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Origin", "Accept"],
   optionsSuccessStatus: 200,
+  preflightContinue: false,
 };
 
 app.use(cors(corsOptions));
 
 app.use(express.json({ limit: "50mb" }));
 
-app.options("*", cors());
+// Handle preflight requests explicitly
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Origin, Accept");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.status(200).end();
+});
 
 app.get("/api/test-cors", (req, res) => {
   res.json({
     message: "CORS test successful",
     origin: req.headers.origin,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.post("/api/test-cors", (req, res) => {
+  res.json({
+    message: "CORS POST test successful",
+    origin: req.headers.origin,
+    body: req.body,
     timestamp: new Date().toISOString(),
   });
 });
