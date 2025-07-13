@@ -1,7 +1,8 @@
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
 import cloudinary from "../lib/cloudinary.js";
-import { getReceiverSocketId, io } from "../lib/socket.js";
+import { getReceiverSocketId } from "../lib/socket.js";
+import { getSocketInstance } from "../lib/socketInstance.js";
 import { encryptMessage, decryptMessage } from "../lib/encryption.js";
 
 export const getUsersForSidebar = async (req, res) => {
@@ -88,12 +89,16 @@ export const sendMessage = async (req, res) => {
 
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", decryptedMessage);
+      getSocketInstance()
+        .to(receiverSocketId)
+        .emit("newMessage", decryptedMessage);
     }
 
     const senderSocketId = getReceiverSocketId(currentUser._id);
     if (senderSocketId) {
-      io.to(senderSocketId).emit("newMessage", decryptedMessage);
+      getSocketInstance()
+        .to(senderSocketId)
+        .emit("newMessage", decryptedMessage);
     }
 
     res.status(201).json(decryptedMessage);

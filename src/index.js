@@ -1,11 +1,13 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import http from "http";
 import { verifyClerkToken } from "./middleware/clerkAuth.js";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { connectDB } from "./lib/db.js";
-import { server, io } from "./lib/socket.js";
+import { createSocketServer } from "./lib/socket.js";
+import { setSocketInstance } from "./lib/socketInstance.js";
 
 dotenv.config();
 
@@ -17,6 +19,7 @@ console.log("CORS allowed origins:", [
 ]);
 
 const app = express();
+const server = http.createServer(app);
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin}`);
@@ -76,6 +79,10 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
+// Create socket.io server
+const io = createSocketServer(server);
+setSocketInstance(io);
 
 server.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
