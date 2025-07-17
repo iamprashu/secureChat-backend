@@ -28,9 +28,9 @@ app.use((req, res, next) => {
 
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = [
-        "https://securechat-backend-qgtd.onrender.com",
-        "https://securechat-backend-qgtd.onrender.com",
+    const allowedOrigins = [ // change as per your use
+        "https://secure-chat-ecru.vercel.app",
+        "https://secure-chat-ecru.vercel.app",
     ];
     
 

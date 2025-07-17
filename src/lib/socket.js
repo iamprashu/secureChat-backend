@@ -11,9 +11,9 @@ export function createSocketServer(server) {
   const io = new Server(server, {
     cors: {
       origin:
-        process.env.NODE_ENV === "production"
-          ? ["https://securechat-backend-qgtd.onrender.com"]
-          : ["https://securechat-backend-qgtd.onrender.com"],
+        process.env.NODE_ENV === "production" // change accordingly
+          ? ["https://secure-chat-ecru.vercel.app"]
+          : ["https://secure-chat-ecru.vercel.app"],
     },
   });
 
