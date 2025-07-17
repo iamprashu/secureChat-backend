@@ -1,84 +1,154 @@
-# Backend - SecureChats
+# SecureChats Backend
 
-## Clerk JWT Authentication Implementation
+A secure real-time chat application backend built with Node.js, Express, MongoDB, and Clerk authentication.
 
-This backend now uses **industry-standard Clerk JWT authentication** instead of custom JWT cookies.
+## Features
 
-### Changes Made:
+- 🔐 **Clerk JWT Authentication** - Industry-standard authentication
+- 💬 **Real-time Messaging** - Socket.io powered chat
+- 🖼️ **Image Upload** - Cloudinary integration for media sharing
+- 🔒 **Message Encryption** - Secure message storage
+- 👥 **User Management** - Profile management and user sync
+- 🚀 **RESTful API** - Clean API endpoints
 
-#### 1. **New Middleware** (`middleware/clerkAuth.js`)
+## Tech Stack
 
-- **verifyClerkToken()**: Verifies Clerk JWT tokens from Authorization header
-- **Uses networkless verification** for better performance and security
-- **Extracts user data** from Clerk JWT payload
-- **Adds clerkUser** to request object for controllers
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MongoDB with Mongoose
+- **Authentication**: Clerk
+- **Real-time**: Socket.io
+- **File Storage**: Cloudinary
+- **Security**: JWT, bcrypt, encryption
 
-#### 2. **Updated Auth Controller** (`controllers/auth.controller.js`)
+## Quick Start
 
-- ❌ **Removed**: `signup()`, `login()`, `logout()` methods
-- ✅ **Updated**: `checkAuth()` to work with Clerk user data
-- ✅ **Updated**: `syncClerkUser()` to use Clerk JWT
-- ✅ **Updated**: `updateProfile()` to find user by Clerk ID
+### 1. Clone and Install
 
-#### 3. **Updated Message Controller** (`controllers/message.controller.js`)
+```bash
+git clone <repository-url>
+cd backend
+npm install
+```
 
-- ✅ **Updated**: `getUsersForSidebar()` to use Clerk user ID
-- ✅ **Updated**: `getMessages()` to find user by Clerk ID
-- ✅ **Updated**: `sendMessage()` to use Clerk user as sender
+### 2. Environment Setup
 
-#### 4. **Updated Routes**
-
-- **auth.route.js**: All routes now use `verifyClerkToken` middleware
-- **message.route.js**: All routes now use `verifyClerkToken` middleware
-- ❌ **Removed**: Old auth endpoints (signup, login, logout)
-
-#### 5. **User Model** (`models/user.model.js`)
-
-- ✅ **Added**: `clerkUserId` field for Clerk user identification
-- ✅ **Updated**: Schema to support Clerk authentication
-
-### Environment Variables Required:
+Create a `.env` file in the root directory with the following variables:
 
 ```env
-CLERK_JWT_KEY=your_clerk_jwt_key
-CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-MONGODB_URI=your_mongodb_uri
-PORT=3000
-CLOUDINARY_API_KEY=your_cloudinary_key
-CLOUDINARY_API_SECRET=your_cloudinary_secret
-CLOUDINARY_CLOUD_NAME=your_cloudinary_name
-ENC_KEY=your_32_character_encryption_key
+# Clerk Authentication
+CLERK_JWT_KEY=sk_test_Kind..............
+CLERK_SECRET_KEY=sk_test_SameKind.......
+
+# Cloudinary Configuration
+CLOUDINARY_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXX
+CLOUDINARY_API_SECRET=XXXXXXXXXXXXXXXXXXXXXX
+CLOUDINARY_CLOUD_NAME=XXXXXXXXXXXXXXXX
+
+# Security
+ENC_KEY=XXXXXXXXXXXXXXXXX
+JWT_SECRET=XXXXXXXXXXXXXXXX
+
+# Database
+MONGODB_URI=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Server
+PORT=Default is 3000
 ```
 
-### API Endpoints:
+### 3. Run the Application
 
-#### Authentication
+```bash
+# Development mode
+npm run dev
 
-- `GET /api/auth/check` - Verify auth and return user data
-- `POST /api/auth/sync-clerk` - Sync Clerk user with database
-- `PUT /api/auth/update-profile` - Update user profile
-
-#### Messages
-
-- `GET /api/messages/users` - Get all users for sidebar
-- `GET /api/messages/:id` - Get messages with specific user
-- `POST /api/messages/send/:id` - Send message to user
-
-### Security Benefits:
-
-- ✅ **Industry Standard**: Uses Clerk's battle-tested JWT verification
-- ✅ **Networkless Verification**: No network calls for token verification
-- ✅ **No Custom Auth**: Eliminates custom JWT vulnerabilities
-- ✅ **Proper Token Verification**: Clerk SDK handles token validation
-- ✅ **Secure Headers**: Uses Authorization header instead of cookies
-- ✅ **Automatic Token Refresh**: Clerk handles token lifecycle
-
-### Frontend Integration:
-
-The frontend automatically sends Clerk JWT tokens in the Authorization header:
-
-```
-Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+# Production mode
+npm start
 ```
 
-All API calls now use Clerk JWT tokens for authentication! 🎯
+The server will start on `http://localhost:3000`
+
+## API Endpoints
+
+### Authentication Routes (`/api/auth`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/check` | Verify authentication and return user data |
+| POST | `/sync-clerk` | Sync Clerk user with database |
+| PUT | `/update-profile` | Update user profile information |
+
+### Message Routes (`/api/messages`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/users` | Get all users for sidebar |
+| GET | `/:id` | Get message history with specific user |
+| POST | `/send/:id` | Send message to specific user |
+
+## Authentication Flow
+
+1. **Frontend Login**: User authenticates via Clerk
+2. **JWT Token**: Clerk provides JWT token to frontend
+3. **API Requests**: Frontend sends token in Authorization header
+4. **Token Verification**: Backend verifies token using Clerk SDK
+5. **User Sync**: User data synced with local database
+
+## Project Structure
+
+```
+src/
+├── controllers/     # Request handlers
+├── middleware/      # Custom middleware (auth, etc.)
+├── models/         # MongoDB schemas
+├── routes/         # API route definitions
+├── lib/            # Utility functions
+├── seeds/          # Database seeders
+└── index.js        # Application entry point
+```
+
+## Security Features
+
+- ✅ **JWT Verification**: Clerk SDK handles token validation
+- ✅ **Message Encryption**: Messages encrypted before storage
+- ✅ **CORS Protection**: Configured for secure cross-origin requests
+- ✅ **Input Validation**: Request data validation and sanitization
+- ✅ **Secure Headers**: Authorization header for token transmission
+
+## Development
+
+### Prerequisites
+
+- Node.js (v16 or higher)
+- MongoDB Atlas account
+- Clerk account
+- Cloudinary account
+
+### Scripts
+
+```bash
+npm run dev    # Start development server with nodemon
+npm start      # Start production server
+```
+
+### Environment Variables Explained
+
+- **CLERK_JWT_KEY**: Your Clerk JWT verification key
+- **CLERK_SECRET_KEY**: Your Clerk secret key for API calls
+- **CLOUDINARY_***: Cloudinary credentials for image uploads
+- **ENC_KEY**: 32-character key for message encryption
+- **JWT_SECRET**: Secret for additional JWT operations
+- **MONGODB_URI**: MongoDB connection string
+- **PORT**: Server port (default: 3000)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is licensed under the ISC License.
