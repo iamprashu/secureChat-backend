@@ -12,8 +12,8 @@ export function createSocketServer(server) {
     cors: {
       origin:
         process.env.NODE_ENV === "production"
-          ? ["https://secure-chat-ecru.vercel.app", "http://localhost:5173"]
-          : ["http://localhost:5173", "http://192.168.0.101:5173"],
+          ? ["https://securechat-backend-qgtd.onrender.com"]
+          : ["https://securechat-backend-qgtd.onrender.com"],
     },
   });
 

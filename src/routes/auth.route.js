@@ -4,6 +4,8 @@ import {
   updateProfile,
   syncClerkUser,
   syncClerkUserPublic,
+  savePublicKey,
+  getPublicKey,
 } from "../controllers/auth.controller.js";
 import { verifyClerkToken } from "../middleware/clerkAuth.js";
 
@@ -19,5 +21,7 @@ router.post("/sync-clerk", verifyClerkToken, syncClerkUser);
 router.put("/update-profile", verifyClerkToken, updateProfile);
 
 router.post("/sync-clerk-public", syncClerkUserPublic);
+router.post("/save-public-key", verifyClerkToken, savePublicKey);
+router.get("/get-public-key/:userId", getPublicKey);
 
 export default router;

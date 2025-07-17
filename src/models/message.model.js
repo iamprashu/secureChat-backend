@@ -18,6 +18,13 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    encryptedMessage: {
+      encrypted: String,
+      iv: String,
+    },
+    encryptedAESKeys: {
+      type: mongoose.Schema.Types.Mixed,
+    },
   },
   { timestamps: true }
 );

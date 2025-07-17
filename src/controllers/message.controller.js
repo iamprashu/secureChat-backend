@@ -3,7 +3,6 @@ import Message from "../models/message.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { getReceiverSocketId } from "../lib/socket.js";
 import { getSocketInstance } from "../lib/socketInstance.js";
-import { encryptMessage, decryptMessage } from "../lib/encryption.js";
 
 export const getUsersForSidebar = async (req, res) => {
   try {
@@ -20,7 +19,6 @@ export const getUsersForSidebar = async (req, res) => {
 
     res.status(200).json(filteredUsers);
   } catch (error) {
-    console.error("Error in getUsersForSidebar: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -42,21 +40,15 @@ export const getMessages = async (req, res) => {
       ],
     });
 
-    const decryptedMessages = messages.map((message) => ({
-      ...message.toObject(),
-      text: decryptMessage(message.text),
-    }));
-
-    res.status(200).json(decryptedMessages);
+    res.status(200).json(messages);
   } catch (error) {
-    console.log("Error in getMessages controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 export const sendMessage = async (req, res) => {
   try {
-    const { text, image } = req.body;
+    const { text, image, encryptedMessage, encryptedAESKeys } = req.body;
     const { id: receiverId } = req.params;
     const { clerkUser } = req;
 
@@ -71,39 +63,43 @@ export const sendMessage = async (req, res) => {
       imageUrl = uploadResponse.secure_url;
     }
 
-    const encryptedText = encryptMessage(text);
-
     const newMessage = new Message({
       senderId: currentUser._id,
       receiverId,
-      text: encryptedText,
+      text: text || null,
       image: imageUrl,
+      encryptedMessage: encryptedMessage || null,
+      encryptedAESKeys: encryptedAESKeys || null,
     });
 
     await newMessage.save();
 
-    const decryptedMessage = {
-      ...newMessage.toObject(),
-      text: decryptMessage(encryptedText),
-    };
+    let messageToSend = newMessage.toObject();
+    
+    if (messageToSend.encryptedAESKeys && typeof messageToSend.encryptedAESKeys === 'object') {
+      if (messageToSend.encryptedAESKeys instanceof Map) {
+        messageToSend.encryptedAESKeys = Object.fromEntries(messageToSend.encryptedAESKeys);
+      }
+    }
+    
+
 
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
       getSocketInstance()
         .to(receiverSocketId)
-        .emit("newMessage", decryptedMessage);
+        .emit("newMessage", messageToSend);
     }
 
     const senderSocketId = getReceiverSocketId(currentUser._id);
     if (senderSocketId) {
       getSocketInstance()
         .to(senderSocketId)
-        .emit("newMessage", decryptedMessage);
+        .emit("newMessage", messageToSend);
     }
 
-    res.status(201).json(decryptedMessage);
+    res.status(201).json(messageToSend);
   } catch (error) {
-    console.log("Error in sendMessage controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };

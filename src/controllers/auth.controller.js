@@ -166,3 +166,54 @@ export const updateProfile = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const savePublicKey = async (req, res) => {
+  try {
+    const { publicKey } = req.body;
+    const { clerkUser } = req;
+    
+    if (!publicKey) {
+      return res.status(400).json({ message: "publicKey is required" });
+    }
+    
+    let user = await User.findOne({ clerkUserId: clerkUser.id });
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    user.publicKey = publicKey;
+    await user.save();
+    
+    console.log(`Public key saved for user: ${clerkUser.id}`);
+    res.status(200).json({ message: "Public key saved", userId: clerkUser.id });
+  } catch (error) {
+    console.log("Error in savePublicKey:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getPublicKey = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required" });
+    }
+
+    let user;
+
+    if (userId.match(/^[0-9a-fA-F]{24}$/)) {
+      user = await User.findById(userId);
+    } else {
+      user = await User.findOne({ clerkUserId: userId });
+    }
+
+    if (!user || !user.publicKey) {
+      return res.status(404).json({ message: "Public key not found for user" });
+    }
+    res.status(200).json({ publicKey: user.publicKey });
+  } catch (error) {
+    console.log("Error in getPublicKey:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

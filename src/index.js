@@ -12,7 +12,7 @@ dotenv.config();
 
 console.log("Environment:", process.env.NODE_ENV);
 console.log("CORS allowed origins:", [
-  "https://secure-chat-ecru.vercel.app",
+  // "https://secure-chat-ecru.vercel.app",
   "http://localhost:5173",
   "http://192.168.0.101:5173",
 ]);
@@ -29,10 +29,10 @@ app.use((req, res, next) => {
 const corsOptions = {
   origin: function (origin, callback) {
     const allowedOrigins = [
-      "https://secure-chat-ecru.vercel.app",
-      "http://localhost:5173",
-      "http://192.168.0.101:5173",
+        "https://securechat-backend-qgtd.onrender.com",
+        "https://securechat-backend-qgtd.onrender.com",
     ];
+    
 
     if (!origin) return callback(null, true);
 

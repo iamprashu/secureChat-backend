@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "clerk-auth",
     },
+    //added for new term aur ye abhi chek krnah
+    publicKey: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );
