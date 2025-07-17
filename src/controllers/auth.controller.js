@@ -57,6 +57,7 @@ export const syncClerkUser = async (req, res) => {
       user.clerkUserId = clerkUser.id;
       if (clerkUser.email) user.email = clerkUser.email;
       if (clerkUser.fullName) user.fullName = clerkUser.fullName;
+      //this is a tested and leaving comment so backend pipline should apply this in localhost
       //this is the problem in previous code yaha pe user ki profile sociall ac ki each time change hi rahi hai
       //logic change is if user has profile pic in db use it else use clerk wali but do not push to db
       if (!user.profilePic) { // agar user ne apni add nahi ki to clerk wali lelo baki update me to change ho jayegi
